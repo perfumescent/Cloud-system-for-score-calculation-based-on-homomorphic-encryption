@@ -8,15 +8,15 @@
         input[type=submit] {
         font-family: inherit;
     }
-    
+
     input[type=text] {
         border: 1px solid #ddd;
     }
-    
+
     input[name=year] {
         width: 50px;
     }
-    
+
     .btn {
         font-size: 12px;
         padding: 3px 5px;
@@ -27,23 +27,23 @@
         border: 1px solid #555555;
         border-radius: 5px;
     }
-    
+
     .btn:hover {
         text-decoration: none;
         background-color: black;
         color: white;
         border: 1px solid black;
     }
-        </style>
+    </style>
 </head>
 <body>
     <!-- Your page content -->
     <form method="post">  <!-- 指定提交方法为 POST -->
-        <label for="name">学号</label>
-        <input type="text" name="name" id="name" autocomplete="off" required>  <!-- 文本输入框 -->
-        <input class="btn" type="submit" name="submit" value="进入">  <!-- 提交按钮 -->
+        <label for="name">密码</label>
+        <input type="text" name="name" id="name" autocomplete="off" required><br>  <!-- 文本输入框 -->
+        <label for="id">安全令</label>
+        <input type="text" name="id" id="id" autocomplete="off" required><br>  <!-- 文本输入框 -->
+        <input class="btn" type="submit" name="submit" value="验证">  <!-- 提交按钮 -->
     </form>
-    <br>
-    <a class="btn" href="/register">申请安全令</a>
 </body>
 </html>
