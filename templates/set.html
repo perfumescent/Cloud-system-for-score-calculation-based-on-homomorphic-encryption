@@ -34,11 +34,22 @@
         color: white;
         border: 1px solid black;
     }
+    .alert {
+    position: relative;
+    padding: 7px;
+    margin: 7px 0;
+    border: 1px solid transparent;
+    color: #004085;
+    background-color: #cce5ff;
+    border-color: #b8daff;
+    border-radius: 5px;
+}
+
         </style>
 </head>
 <body>
 你是领取令牌后首次登录，需要设置密码。请先用安全令软件生成鉴别码后在下方提交！
-    <!-- Your page content -->
+    <br><!-- Your page content -->
     <form method="post">  <!-- 指定提交方法为 POST -->
         <label for="psw">设置鉴别码</label>
         <input type="text" name="psw" id="psw" autocomplete="off" required>  <!-- 文本输入框 -->

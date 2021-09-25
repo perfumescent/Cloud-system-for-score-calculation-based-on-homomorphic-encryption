@@ -34,10 +34,23 @@
         color: white;
         border: 1px solid black;
     }
+    .alert {
+    position: relative;
+    padding: 7px;
+    margin: 7px 0;
+    border: 1px solid transparent;
+    color: #004085;
+    background-color: #cce5ff;
+    border-color: #b8daff;
+    border-radius: 5px;
+}
         </style>
 </head>
 <body>
-    请提交使用安全令软件生成的鉴别码！
+{% for message in get_flashed_messages() %}
+    <div class="alert">{{ message }}</div>
+{% endfor %}
+    请提交使用安全令软件生成的鉴别码！<br>
     <!-- Your page content -->
     <form method="post">  <!-- 指定提交方法为 POST -->
         <label for="psw">鉴别码</label>
