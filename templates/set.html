@@ -37,13 +37,13 @@
         </style>
 </head>
 <body>
+你是领取令牌后首次登录，需要设置密码。请先用安全令软件生成鉴别码后在下方提交！
     <!-- Your page content -->
     <form method="post">  <!-- 指定提交方法为 POST -->
-        <label for="id">学号</label>
-        <input type="text" name="id" id="id" autocomplete="off" required>  <!-- 文本输入框 -->
-        <input class="btn" type="submit" name="submit" value="进入">  <!-- 提交按钮 -->
+        <label for="psw">设置鉴别码</label>
+        <input type="text" name="psw" id="psw" autocomplete="off" required>  <!-- 文本输入框 -->
+        <input class="btn" type="submit" name="submit" value="提交">  <!-- 提交按钮 -->
     </form>
     <br>
-    <a class="btn" href="/register">申请安全令</a>
 </body>
 </html>
