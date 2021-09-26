@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, flash, url_for, redirect, session
 import pandas as pd
 import rsa
+import base64
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev' 
@@ -17,7 +18,7 @@ def index():
 
         session['id']=id
 
-        if pd.isnull(data.loc[data.id==id].identity[0]):
+        if data.loc[data.id==id].identity[0]=="Null":
             return redirect(url_for('set'))
         
         return redirect(url_for('authentication'))
@@ -27,10 +28,16 @@ def index():
 @app.route('/set', methods=['GET', 'POST'])
 def set():
     if request.method == 'POST':
-        psw = request.form.get('psw')
+        idtt = base64.b64decode(request.form.get('psw').encode())
         data = pd.read_csv("user.csv")
-        data.loc[data.id==int(session['id']),'identity']=psw
+
+        pri_str = base64.b64decode(data.loc[data.id==int(session['id']),'privateKey'][0].encode())
+        pri = rsa.PrivateKey.load_pkcs1(pri_str)
+        content = base64.b64encode(rsa.decrypt(idtt,pri)).decode()
+
+        data.loc[data.id==int(session['id']),'identity']=content
         data.to_csv("user.csv",index=False)
+        flash("设置成功，请登录！")
         return redirect(url_for('authentication'))
         
     return render_template('set.html')
@@ -38,9 +45,15 @@ def set():
 @app.route('/authentication', methods=['GET', 'POST'])
 def authentication():
     if request.method == 'POST':
-        psw = request.form.get('psw')
+        idtt = base64.b64decode(request.form.get('psw').encode())
+        print(idtt)
         data = pd.read_csv("user.csv")
-        if data[data.id==int(session['id'])].identity[0]==psw:
+
+        pri_str = base64.b64decode(data.loc[data.id==int(session['id']),'privateKey'][0].encode())
+        pri = rsa.PrivateKey.load_pkcs1(pri_str)
+
+        content = base64.b64encode(rsa.decrypt(idtt,pri)).decode()
+        if data[data.id==int(session['id'])].identity[0]==content:
             return(redirect(url_for('download')))
         flash("鉴别码错误！")
     return render_template('authentication.html')
@@ -63,7 +76,7 @@ def register():
         (pub, pri) = rsa.newkeys(512)
         pub = pub.save_pkcs1()
         pri = pri.save_pkcs1()
-        data.loc[len(data)] = (id,name,status,None,pri)
+        data.loc[len(data)] = (id,name,status,"Null",base64.b64encode(pri).decode())
         data.to_csv("user.csv",index=False)
         with open("./Keys/"+status+name+str(id)+".pem","wb") as f:
             f.write(pub)
