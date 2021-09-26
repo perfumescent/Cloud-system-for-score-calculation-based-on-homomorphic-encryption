@@ -45,17 +45,22 @@ def set():
 @app.route('/authentication', methods=['GET', 'POST'])
 def authentication():
     if request.method == 'POST':
-        idtt = base64.b64decode(request.form.get('psw').encode())
-        print(idtt)
-        data = pd.read_csv("user.csv")
+        try:
+            idtt = base64.b64decode(request.form.get('psw').encode())
+            data = pd.read_csv("user.csv")
 
-        pri_str = base64.b64decode(data.loc[data.id==int(session['id']),'privateKey'][0].encode())
-        pri = rsa.PrivateKey.load_pkcs1(pri_str)
+            pri_str = base64.b64decode(data.loc[data.id==int(session['id']),'privateKey'][0].encode())
+            pri = rsa.PrivateKey.load_pkcs1(pri_str)
 
-        content = base64.b64encode(rsa.decrypt(idtt,pri)).decode()
-        if data[data.id==int(session['id'])].identity[0]==content:
-            return(redirect(url_for('download')))
-        flash("鉴别码错误！")
+            content = base64.b64encode(rsa.decrypt(idtt,pri)).decode()
+            if data[data.id==int(session['id'])].identity[0]==content:
+                return(redirect(url_for('download')))
+        except Exception as e:
+            print("------",session['id']," Error: ",e)
+        finally:
+            flash("鉴别码错误！")
+
+        
     return render_template('authentication.html')
 
 @app.route('/download', methods=['GET', 'POST'])
