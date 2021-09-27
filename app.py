@@ -17,8 +17,7 @@ def index():
             return render_template('register.html')
 
         session['id']=id
-
-        if data.loc[data.id==id].identity[0]=="Null":
+        if data.loc[data.id==id].identity.all()=="Null":
             return redirect(url_for('set'))
         
         return redirect(url_for('authentication'))
@@ -31,7 +30,7 @@ def set():
         idtt = base64.b64decode(request.form.get('psw').encode())
         data = pd.read_csv("user.csv")
 
-        pri_str = base64.b64decode(data.loc[data.id==int(session['id']),'privateKey'][0].encode())
+        pri_str = base64.b64decode(data.loc[data.id==int(session['id']),'privateKey'].values[0].encode())
         pri = rsa.PrivateKey.load_pkcs1(pri_str)
         content = base64.b64encode(rsa.decrypt(idtt,pri)).decode()
 
@@ -49,14 +48,17 @@ def authentication():
             idtt = base64.b64decode(request.form.get('psw').encode())
             data = pd.read_csv("user.csv")
 
-            pri_str = base64.b64decode(data.loc[data.id==int(session['id']),'privateKey'][0].encode())
+            pri_str = base64.b64decode(data.loc[data.id==int(session['id']),'privateKey'].values[0].encode())
             pri = rsa.PrivateKey.load_pkcs1(pri_str)
 
             content = base64.b64encode(rsa.decrypt(idtt,pri)).decode()
-            if data[data.id==int(session['id'])].identity[0]==content:
-                return(redirect(url_for('download')))
+            if data[data.id==int(session['id'])].identity.all()==content:
+                if data[data.id==int(session['id'])].status.all() =="教师":
+                    return (redirect(url_for('upload')))
+                else:
+                    return(redirect(url_for('download')))
         except Exception as e:
-            print("------",session['id']," Error: ",e)
+            print("------",session['id'],"------",e)
         finally:
             flash("鉴别码错误！")
 
@@ -69,7 +71,7 @@ def download():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        id = int(request.form.get('id'))
+        id = request.form.get('id')
         name = request.form.get('name')
         status = request.form.get('status')
         data = pd.read_csv("user.csv")
@@ -81,9 +83,9 @@ def register():
         (pub, pri) = rsa.newkeys(512)
         pub = pub.save_pkcs1()
         pri = pri.save_pkcs1()
-        data.loc[len(data)] = (id,name,status,"Null",base64.b64encode(pri).decode())
+        data.loc[len(data)] = (str(id),name,status,"Null",base64.b64encode(pri).decode())
         data.to_csv("user.csv",index=False)
-        with open("./Keys/"+status+name+str(id)+".pem","wb") as f:
+        with open("./keys/"+status+name+str(id)+".pem","wb") as f:
             f.write(pub)
         flash("成功向教务发送申请！请等待相关人员下发安全令文件。")
         return render_template('register.html')

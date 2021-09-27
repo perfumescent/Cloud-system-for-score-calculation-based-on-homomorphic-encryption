@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>基于同态加密的云端成绩计算系统</title>
+    <style type="text/css">
+        input[type=submit] {
+        font-family: inherit;
+    }
+
+    input[type=text] {
+        border: 1px solid #ddd;
+    }
+
+    input[name=year] {
+        width: 50px;
+    }
+
+    .btn {
+        font-size: 12px;
+        padding: 3px 5px;
+        text-decoration: none;
+        cursor: pointer;
+        background-color: white;
+        color: black;
+        border: 1px solid #555555;
+        border-radius: 5px;
+    }
+
+    .btn:hover {
+        text-decoration: none;
+        background-color: black;
+        color: white;
+        border: 1px solid black;
+    }
+    .alert {
+    position: relative;
+    padding: 7px;
+    margin: 7px 0;
+    border: 1px solid transparent;
+    color: #004085;
+    background-color: #cce5ff;
+    border-color: #b8daff;
+    border-radius: 5px;
+    </style>
+</head>
+<body>
+    <!-- Your page content -->
+    <form method="post">  <!-- 指定提交方法为 POST -->
+        <label for="course">课程名</label>
+        <input type="text" name="course" id="course" autocomplete="off" required><br>  <!-- 文本输入框 -->
+        <label for="credit">学分</label>
+        <input type="text" name="credit" id="credit" autocomplete="off" required><br>  <!-- 文本输入框 -->
+        <input class="btn" type="submit" name="submit" value="验证">  <!-- 提交按钮 -->
+    </form>
+</body>
+</html>
