@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, flash, url_for, redirect, session
+from werkzeug.utils import secure_filename
 import pandas as pd
 import rsa
 import base64
@@ -59,11 +60,33 @@ def authentication():
                     return(redirect(url_for('download')))
         except Exception as e:
             print("------",session['id'],"------",e)
-        finally:
-            flash("鉴别码错误！")
+        flash("鉴别码错误！")
 
         
     return render_template('authentication.html')
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    if request.method == 'POST':
+        course = request.form.get('course')
+        credit = request.form.get('credit')
+        f = request.files['file']
+        place = "transcripts/"+secure_filename(f.filename)
+        f.save(place)
+
+        mark = pd.read_csv('mark.csv')
+        if mark['course'].any()==course:
+            flash("该科成绩已有记录，请勿重复上传！")
+            return render_template('upload.html')
+        data = pd.read_csv(place).iloc[:,1:]
+        data['course']=[course for i in range(len(data))]
+        data['credit']=[credit for i in range(len(data))]
+        
+        res = pd.concat([mark,data])
+        res.to_csv("mark.csv",index=False)
+        flash(course+" 成绩上传成功！")
+
+    return render_template('upload.html')
 
 @app.route('/download', methods=['GET', 'POST'])
 def download():

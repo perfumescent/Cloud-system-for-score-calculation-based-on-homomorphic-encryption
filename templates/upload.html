@@ -46,13 +46,17 @@
     </style>
 </head>
 <body>
+{% for message in get_flashed_messages() %}
+    <div class="alert">{{ message }}</div>
+{% endfor %}
     <!-- Your page content -->
-    <form method="post">  <!-- 指定提交方法为 POST -->
+    <form method="post" enctype='multipart/form-data'>  <!-- 指定提交方法为 POST -->
         <label for="course">课程名</label>
         <input type="text" name="course" id="course" autocomplete="off" required><br>  <!-- 文本输入框 -->
         <label for="credit">学分</label>
         <input type="text" name="credit" id="credit" autocomplete="off" required><br>  <!-- 文本输入框 -->
-        <input class="btn" type="submit" name="submit" value="验证">  <!-- 提交按钮 -->
+        <input type="file" name="file">
+        <input class="btn" type="submit" name="submit" value="提交">  <!-- 提交按钮 -->
     </form>
 </body>
 </html>
