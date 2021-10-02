@@ -4,10 +4,11 @@ import pandas as pd
 import rsa
 import base64
 from phe import paillier
+import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev'
-public_key, private_key = paillier.generate_paillier_keypair()
+public_phe, private_phe = paillier.generate_paillier_keypair()
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -21,7 +22,7 @@ def index():
             return render_template('register.html')
 
         session['id'] = id
-        if data.loc[data.id == id].identity.all() == "Null":
+        if (data.loc[data.id == id].identity == "Null").all():
             return redirect(url_for('set'))
 
         return redirect(url_for('authentication'))
@@ -60,8 +61,10 @@ def authentication():
             pri = rsa.PrivateKey.load_pkcs1(pri_str)
 
             content = base64.b64encode(rsa.decrypt(idtt, pri)).decode()
-            if data[data.id == int(session['id'])].identity.all() == content:
-                if data[data.id == int(session['id'])].status.all() == "教师":
+            if (data[data.id == int(session['id'])]
+                    .identity == content).all():
+                if (data[data.id == int(session['id'])]
+                        .status == "教师").all():
                     return (redirect(url_for('upload')))
                 else:
                     return(redirect(url_for('download')))
@@ -86,10 +89,13 @@ def upload():
             flash("该科成绩已有记录，请勿重复上传！")
             return render_template('upload.html')
         data = pd.read_csv(place).iloc[:, 1:]
+
         data['course'] = [course for i in range(len(data))]
         data['credit'] = [credit for i in range(len(data))]
 
         res = pd.concat([mark, data])
+        res['mark'] = res['mark'].map(
+            lambda x: str(public_phe.encrypt(x).ciphertext()))
         res.to_csv("mark.csv", index=False)
         flash(course+" 成绩上传成功！")
 
@@ -121,6 +127,11 @@ def register():
         data.to_csv("user.csv", index=False)
         with open("./keys/"+status+name+str(id)+".pem", "wb") as f:
             f.write(pub)
+        
+        with open("./keys/"+status+name+str(id)+".phe", "w") as f:
+            f.write(json.dumps({"p": str(private_phe.p),
+                                "q": private_phe.q}))
+        
         flash("成功向教务发送申请！请等待相关人员下发安全令文件。")
         return render_template('register.html')
 
