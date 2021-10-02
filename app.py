@@ -3,9 +3,11 @@ from werkzeug.utils import secure_filename
 import pandas as pd
 import rsa
 import base64
+from phe import paillier
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev'
+public_key, private_key = paillier.generate_paillier_keypair()
 
 
 @app.route('/', methods=['GET', 'POST'])
