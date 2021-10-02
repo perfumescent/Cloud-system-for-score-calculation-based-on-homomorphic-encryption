@@ -22,7 +22,7 @@ def index():
             return render_template('register.html')
 
         session['id'] = id
-        if (data.loc[data.id == id].identity == "Null").all():
+        if (data.loc[data.id == id].identity == "Null").any():
             return redirect(url_for('set'))
 
         return redirect(url_for('authentication'))
@@ -62,9 +62,9 @@ def authentication():
 
             content = base64.b64encode(rsa.decrypt(idtt, pri)).decode()
             if (data[data.id == int(session['id'])]
-                    .identity == content).all():
+                    .identity == content).any():
                 if (data[data.id == int(session['id'])]
-                        .status == "教师").all():
+                        .status == "教师").any():
                     return (redirect(url_for('upload')))
                 else:
                     return(redirect(url_for('download')))
@@ -80,22 +80,23 @@ def upload():
     if request.method == 'POST':
         course = request.form.get('course')
         credit = request.form.get('credit')
+        
         f = request.files['file']
         place = "transcripts/"+secure_filename(f.filename)
         f.save(place)
 
         mark = pd.read_csv('mark.csv')
-        if mark['course'].any() == course:
+        if (mark.course == course).any():
             flash("该科成绩已有记录，请勿重复上传！")
             return render_template('upload.html')
         data = pd.read_csv(place).iloc[:, 1:]
 
         data['course'] = [course for i in range(len(data))]
         data['credit'] = [credit for i in range(len(data))]
+        data['mark'] = data['mark'].map(
+            lambda x: str(public_phe.encrypt(int(x)).ciphertext()))
 
         res = pd.concat([mark, data])
-        res['mark'] = res['mark'].map(
-            lambda x: str(public_phe.encrypt(x).ciphertext()))
         res.to_csv("mark.csv", index=False)
         flash(course+" 成绩上传成功！")
 
